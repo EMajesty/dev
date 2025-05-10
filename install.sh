@@ -131,3 +131,29 @@ else
 	read -p "Email address for ssh-keygen: " email
 	ssh-keygen -t ed25519 -C "$email"
 fi
+
+read -p "Mount raato? [Y/n] " yn
+yn=${yn:-Y}
+if [[ $yn == [Yy] ]]; then
+	read -p "Share username: " USERNAME
+	read -sp "Share password: " PASSWORD
+	echo
+
+	SERVER="//192.168.1.12/raato"
+	MOUNT_POINT="/mnt/raato"
+	CREDENTIALS_FILE="/root/.smbcredentials"
+
+	sudo mkdir -p "$MOUNT_POINT"
+
+	sudo bash -c "echo -e 'username=$USERNAME\npassword=$PASSWORD' > $CREDENTIALS_FILE"
+	sudo chmod 600 "$CREDENTIALS_FILE"
+
+	sudo cp /etc/fstab /etc/fstab.bak
+
+	FSTAB_LINE="$SERVER $MOUNT_POINT cifs credentials=$CREDENTIALS_FILE,uid=$(id -u),gid=$(id -g),iocharset=utf8 0 0"
+	grep -qF -- "$FSTAB_LINE" /etc/fstab || echo "$FSTAB_LINE" | sudo tee -a /etc/fstab
+
+	sudo mount -a
+fi
+
+echo -e "\e[31mThe pact is sealed\e[0m"
