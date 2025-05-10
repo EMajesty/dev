@@ -57,6 +57,7 @@ PACKAGES=(
 	tumbler
 	udiskie
 	unzip
+	vlc
 	waybar
 	wget
 	wireplumber
