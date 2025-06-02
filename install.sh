@@ -8,11 +8,13 @@ PACKAGES=(
 	clang
 	cmake
 	curl
+	discord
 	efibootmgr
 	eom
 	fastfetch
 	ffmpegthumbnailer
 	firefox
+	foliate
 	freerdp
 	galculator
 	gdb
@@ -68,7 +70,7 @@ PACKAGES=(
 )
 
 AUR_PACKAGES=(
-    discord-canary
+    # discord-canary
     hyprshot
     mullvad-vpn
     vial-appimage
