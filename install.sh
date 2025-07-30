@@ -13,7 +13,6 @@ PACKAGES=(
 	eom
 	fastfetch
 	ffmpegthumbnailer
-	firefox
 	foliate
 	freerdp
 	galculator
@@ -23,8 +22,12 @@ PACKAGES=(
 	hyprland
 	hyprpicker
 	less
+	lib32-mesa
+	lib32-vulkan-radeon
 	ly
 	mako
+	man-db
+	mesa
 	mpc
 	mpd
 	ncmpc
@@ -49,6 +52,7 @@ PACKAGES=(
 	remmina
 	rustup
 	smbclient
+	steam
 	stow
 	swww
 	telegram-desktop
@@ -60,22 +64,25 @@ PACKAGES=(
 	udiskie
 	unzip
 	vlc
+	vulkan-radeon
 	waybar
 	wget
 	wireplumber
 	wofi
 	xdg-desktop-portal
 	xdg-desktop-portal-hyprland
+	xf86-video-amdgpu
 	zsh 
 )
 
 AUR_PACKAGES=(
-    # discord-canary
     hyprshot
-    mullvad-vpn
+    # mullvad-vpn
+    spotify
     vial-appimage
     whatsapp-for-linux
     yay
+    zen-browser-bin
 )
 
 sudo pacman -Syu
@@ -92,9 +99,9 @@ done
 git config --global init.defaultBranch main
 
 # import pgp keys
-wget https://mullvad.net/media/mullvad-code-signing.asc
-gpg --import mullvad-code-signing.asc
-rm mullvad-code-signing.asc
+# wget https://mullvad.net/media/mullvad-code-signing.asc
+# gpg --import mullvad-code-signing.asc
+# rm mullvad-code-signing.asc
 
 # install aur packages
 for pkg in "${AUR_PACKAGES[@]}"; do
@@ -106,20 +113,6 @@ for pkg in "${AUR_PACKAGES[@]}"; do
 	    rm -rf "$pkg"
 	fi
 done
-
-# install stuff with scripts
-if [ -d ~/.oh-my-zsh ]; then
-	echo "Oh My ZSH is already installed"
-else
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
-
-# systemd stuff
-sudo systemctl enable --now ly.service
-sudo systemctl enable --now NetworkManager.service
-sudo systemctl enable --now bluetooth.service
-sudo systemctl enable --now mullvad-daemon.service
-systemctl enable --now --user mpd.service
 
 # dotfiles stuff
 # git clone https://github.com/emajesty/dotfiles
@@ -157,6 +150,20 @@ if [[ $yn == [Yy] ]]; then
 	grep -qF -- "$FSTAB_LINE" /etc/fstab || echo "$FSTAB_LINE" | sudo tee -a /etc/fstab
 
 	sudo mount -a
+fi
+
+# systemd stuff
+sudo systemctl enable --now ly.service
+# sudo systemctl enable --now NetworkManager.service
+sudo systemctl enable --now bluetooth.service
+# sudo systemctl enable --now mullvad-daemon.service
+systemctl enable --now --user mpd.service
+
+# install stuff with scripts
+if [ -d ~/.oh-my-zsh ]; then
+	echo "Oh My ZSH is already installed"
+else
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
 echo -e "\e[31mThe pact is sealed\e[0m"
