@@ -9,10 +9,12 @@ PACKAGES=(
 	cmake
 	curl
 	discord
+	dolphin
 	efibootmgr
 	eom
 	fastfetch
 	ffmpegthumbnailer
+	ffmpegthumbs
 	foliate
 	freerdp
 	galculator
@@ -21,6 +23,8 @@ PACKAGES=(
 	git
 	hyprland
 	hyprpicker
+	kdegraphics-thumbnailers
+	kimageformats
 	less
 	lib32-mesa
 	lib32-vulkan-radeon
@@ -36,6 +40,7 @@ PACKAGES=(
 	noto-fonts
 	noto-fonts-cjk
 	ntfs-3g
+    nwg-look
 	obsidian
 	openssh
 	pavucontrol
@@ -48,6 +53,8 @@ PACKAGES=(
 	python
 	python-pip
 	qbittorrent
+	qt5-imageformats
+    qt6ct
 	ranger
 	remmina
 	rustup
