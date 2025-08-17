@@ -3,6 +3,8 @@
 PACKAGES=(
 	7zip
 	amd-ucode
+    aseprite
+    blender
 	blueman
 	btop
 	clang
@@ -21,9 +23,12 @@ PACKAGES=(
 	gdb
 	ghostty
 	git
+    godot
 	hyprland
 	hyprpicker
 	kdegraphics-thumbnailers
+    kicad
+    kicad-library
 	kimageformats
 	less
 	lib32-mesa
@@ -67,6 +72,7 @@ PACKAGES=(
 	tldr
 	tmux
 	tree
+    ttf-liberation
 	tumbler
 	udiskie
 	unzip
