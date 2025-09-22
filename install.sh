@@ -3,6 +3,7 @@
 PACKAGES=(
 	7zip
 	amd-ucode
+    ark
     aseprite
     blender
 	blueman
@@ -30,6 +31,7 @@ PACKAGES=(
     kicad
     kicad-library
 	kimageformats
+    lazygit
 	less
 	lib32-mesa
 	lib32-vulkan-radeon
@@ -58,6 +60,7 @@ PACKAGES=(
 	python
 	python-pip
 	qbittorrent
+    qemu-full
 	qt5-imageformats
     qt6ct
 	ranger
@@ -66,6 +69,7 @@ PACKAGES=(
 	smbclient
 	steam
 	stow
+    swtpm
 	swww
 	telegram-desktop
 	thunar
@@ -76,6 +80,7 @@ PACKAGES=(
 	tumbler
 	udiskie
 	unzip
+    virt-manager
 	vlc
 	vulkan-radeon
 	waybar
@@ -92,7 +97,9 @@ AUR_PACKAGES=(
     hyprshot
     # mullvad-vpn
     spotify
+    trenchbroom-bin
     vial-appimage
+    virtio-win
     whatsapp-for-linux
     yay
     zen-browser-bin
@@ -171,6 +178,7 @@ sudo systemctl enable --now ly.service
 sudo systemctl enable --now bluetooth.service
 # sudo systemctl enable --now mullvad-daemon.service
 systemctl enable --now --user mpd.service
+sudo systemctl enable --now libvirtd
 
 # install stuff with scripts
 if [ -d ~/.oh-my-zsh ]; then
