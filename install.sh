@@ -2,31 +2,44 @@
 
 PACKAGES=(
 	7zip
+    alacritty
 	amd-ucode
     ark
     aseprite
     blender
-	blueman
+	# blueman
+    blueberry
+    bluez
 	btop
+    cifs-utils
 	clang
 	cmake
+    cups
+    cups-pdf
+    cups-filters
+    cups-browsed
+    system-config-printer
 	curl
 	discord
-	dolphin
+	# dolphin
 	efibootmgr
 	eom
+    eza
 	fastfetch
 	ffmpegthumbnailer
 	ffmpegthumbs
 	foliate
 	freerdp
-	galculator
+    gamemode
 	gdb
-	ghostty
+	# ghostty
 	git
     godot
+    hypridle
 	hyprland
+    hyprlock
 	hyprpicker
+    hyprshot
 	kdegraphics-thumbnailers
     kicad
     kicad-library
@@ -35,22 +48,29 @@ PACKAGES=(
 	less
 	lib32-mesa
 	lib32-vulkan-radeon
-	ly
+    lua
+    luajit
+    luarocks
+	# ly
 	mako
 	man-db
 	mesa
-	mpc
 	mpd
-	ncmpc
+    mpd-mpris
+    nautilus
 	neovim
+    network-manager-applet
 	networkmanager
 	noto-fonts
 	noto-fonts-cjk
+	noto-fonts-emoji
+	noto-fonts-extra
 	ntfs-3g
     nwg-look
+    obs-studio
 	obsidian
 	openssh
-	pavucontrol
+	# pavucontrol
 	pipewire
 	pipewire-alsa
 	pipewire-jack
@@ -65,6 +85,7 @@ PACKAGES=(
     qt6ct
 	ranger
 	remmina
+	rmpc
 	rustup
 	smbclient
 	steam
@@ -72,7 +93,7 @@ PACKAGES=(
     swtpm
 	swww
 	telegram-desktop
-	thunar
+	# thunar
 	tldr
 	tmux
 	tree
@@ -82,25 +103,36 @@ PACKAGES=(
 	unzip
     virt-manager
 	vlc
+    vlc-plugins-all
 	vulkan-radeon
 	waybar
 	wget
+    wiremix
 	wireplumber
+    wine
+    winetricks
 	wofi
 	xdg-desktop-portal
 	xdg-desktop-portal-hyprland
 	xf86-video-amdgpu
+    yabridge
+    yabridgectl
 	zsh 
 )
 
 AUR_PACKAGES=(
+    bitwig-studio
+    bottles
     hyprshot
     # mullvad-vpn
+    plymouth-git
+    runelite
     spotify
     trenchbroom-bin
+    tuxguitar
     vial-appimage
     virtio-win
-    whatsapp-for-linux
+    whatsdesk-bin
     yay
     zen-browser-bin
 )
@@ -173,11 +205,12 @@ if [[ $yn == [Yy] ]]; then
 fi
 
 # systemd stuff
-sudo systemctl enable --now ly.service
+# sudo systemctl enable --now ly.service
 # sudo systemctl enable --now NetworkManager.service
 sudo systemctl enable --now bluetooth.service
 # sudo systemctl enable --now mullvad-daemon.service
 systemctl enable --now --user mpd.service
+systemctl enable --now --user mpd-mpris.service
 sudo systemctl enable --now libvirtd
 
 # install stuff with scripts
