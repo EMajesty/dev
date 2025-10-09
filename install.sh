@@ -136,13 +136,16 @@ DESKTOP_PACKAGES=(
     )
 
 read -p "Install desktop packages? [Y/n] " desktoppkgs 
-desktoppkgs=${yn:-Y}
+desktoppkgs=${desktoppkgs:-Y}
 
 read -p "Install laptop packages? [Y/n] " laptoppkgs
-laptoppkgs=${yn:-Y}
+laptoppkgs=${laptoppkgs:-Y}
 
 read -p "Set up git? [Y/n] " git
-git=${yn:-Y}
+git=${git:-Y}
+
+read -p "Mount raato? [Y/n] " mount
+mount=${mount:-Y}
 
 if [[ $git == [Yy] ]]; then
     read -p "Git username: " GITUSER
@@ -200,9 +203,7 @@ else
 	ssh-keygen -t ed25519 -C "$email"
 fi
 
-read -p "Mount raato? [Y/n] " yn
-yn=${yn:-Y}
-if [[ $yn == [Yy] ]]; then
+if [[ $mount == [Yy] ]]; then
 	read -p "Share username: " USERNAME
 	read -sp "Share password: " PASSWORD
 	echo
