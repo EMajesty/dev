@@ -1,13 +1,9 @@
 #!/bin/bash
 
-PACKAGES=(
+CORE_PACKAGES=(
 	7zip
     alacritty
-	amd-ucode
     ark
-    aseprite
-    blender
-	# blueman
     blueberry
     bluez
 	btop
@@ -21,42 +17,30 @@ PACKAGES=(
     system-config-printer
 	curl
 	discord
-	# dolphin
 	efibootmgr
 	eom
     eza
 	fastfetch
 	ffmpegthumbnailer
 	ffmpegthumbs
-	foliate
 	freerdp
-    gamemode
 	gdb
-	# ghostty
+	ghostty
 	git
-    godot
     hypridle
 	hyprland
     hyprlock
 	hyprpicker
     hyprshot
-	kdegraphics-thumbnailers
-    kicad
-    kicad-library
-	kimageformats
     lazygit
 	less
 	lib32-mesa
-	lib32-vulkan-radeon
     lua
     luajit
     luarocks
-	# ly
 	mako
 	man-db
 	mesa
-	mpd
-    mpd-mpris
     nautilus
 	neovim
     network-manager-applet
@@ -67,10 +51,8 @@ PACKAGES=(
 	noto-fonts-extra
 	ntfs-3g
     nwg-look
-    obs-studio
-	obsidian
 	openssh
-	# pavucontrol
+	pavucontrol
 	pipewire
 	pipewire-alsa
 	pipewire-jack
@@ -79,21 +61,9 @@ PACKAGES=(
 	pipewire-v4l2
 	python
 	python-pip
-	qbittorrent
-    qemu-full
-	qt5-imageformats
-    qt6ct
-	ranger
-	remmina
-	rmpc
 	rustup
 	smbclient
-	steam
 	stow
-    swtpm
-	swww
-	telegram-desktop
-	# thunar
 	tldr
 	tmux
 	tree
@@ -101,70 +71,120 @@ PACKAGES=(
 	tumbler
 	udiskie
 	unzip
-    virt-manager
 	vlc
     vlc-plugins-all
-	vulkan-radeon
 	waybar
 	wget
     wiremix
 	wireplumber
-    wine
-    winetricks
 	wofi
 	xdg-desktop-portal
 	xdg-desktop-portal-hyprland
-	xf86-video-amdgpu
-    yabridge
-    yabridgectl
 	zsh 
-)
-
-AUR_PACKAGES=(
-    bitwig-studio
-    bottles
     hyprshot
-    # mullvad-vpn
+    mullvad-vpn
     plymouth-git
     runelite
     spotify
+    zen-browser-bin
+    swww
+    waytrogen
+    )
+
+LAPTOP_PACKAGES=(
+	amd-ucode
+	lib32-vulkan-radeon
+	vulkan-radeon
+	xf86-video-amdgpu
+    )
+
+DESKTOP_PACKAGES=(
+	amd-ucode
+    aseprite
+    bitwig-studio
+    blender
+    bottles
+	foliate
+    gamemode
+    godot
+    kicad
+    kicad-library
+	lib32-vulkan-radeon
+	mpd
+    mpd-mpris
+    obs-studio
+	obsidian
+	qbittorrent
+    qemu-full
+	remmina
+	rmpc
+	steam
+    swtpm
+	telegram-desktop
+    virt-manager
+	vulkan-radeon
+    wine
+    winetricks
+	xf86-video-amdgpu
+    yabridge
+    yabridgectl
     trenchbroom-bin
     tuxguitar
     vial-appimage
     virtio-win
     whatsdesk-bin
-    yay
-    zen-browser-bin
-)
+    )
 
-sudo pacman -Syu
+read -p "Install desktop packages? [Y/n] " desktoppkgs 
+desktoppkgs=${yn:-Y}
+
+read -p "Install laptop packages? [Y/n] " laptoppkgs
+laptoppkgs=${yn:-Y}
+
+read -p "Set up git? [Y/n] " git
+git=${yn:-Y}
+
+if [[ $git == [Yy] ]]; then
+    read -p "Git username: " GITUSER
+    read -p "Git email: " GITEMAIL
+    git config --global user.name "$GITUSER"
+    git config --global user.email "$GITEMAIL"
+    git config --global init.defaultBranch main
+fi
+
+sudo pacman -Syu --noconfirm
+
+# install yay
+git clone "https://aur.archlinux.org/yay.git" &&
+    cd "yay" &&
+    makepkg -si --noconfirm &&
+    cd .. &&
+    rm -rf "yay"
 
 mapfile -t INSTALLED < <(pacman -Qq)
 
 # install packages
-for pkg in "${PACKAGES[@]}"; do
+for pkg in "${CORE_PACKAGES[@]}"; do
 	if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
- 		sudo pacman -S --noconfirm ${pkg}
+ 		yay -S --noconfirm ${pkg}
 	fi
 done
 
-git config --global init.defaultBranch main
+if [[ $desktoppkgs == [Yy] ]]; then
+    for pkg in "${DESKTOP_PACKAGES[@]}"; do
+        if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
+            yay -S --noconfirm ${pkg}
+        fi
+    done
+fi
 
-# import pgp keys
-# wget https://mullvad.net/media/mullvad-code-signing.asc
-# gpg --import mullvad-code-signing.asc
-# rm mullvad-code-signing.asc
-
-# install aur packages
-for pkg in "${AUR_PACKAGES[@]}"; do
-	if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
-	    git clone "https://aur.archlinux.org/${pkg}.git" &&
-	    cd "$pkg" &&
-	    makepkg -si --noconfirm &&
-	    cd .. &&
-	    rm -rf "$pkg"
-	fi
-done
+if [[ $laptoppkgs == [Yy] ]]; then
+    for pkg in "${LAPTOP_PACKAGES[@]}"; do
+        if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
+            yay -S --noconfirm ${pkg}
+        fi
+    done
+fi
 
 # dotfiles stuff
 # git clone https://github.com/emajesty/dotfiles
@@ -205,13 +225,14 @@ if [[ $yn == [Yy] ]]; then
 fi
 
 # systemd stuff
-# sudo systemctl enable --now ly.service
-# sudo systemctl enable --now NetworkManager.service
 sudo systemctl enable --now bluetooth.service
-# sudo systemctl enable --now mullvad-daemon.service
-systemctl enable --now --user mpd.service
-systemctl enable --now --user mpd-mpris.service
-sudo systemctl enable --now libvirtd
+sudo systemctl enable --now mullvad-daemon.service
+
+if [[ $desktoppkgs == [Yy] ]]; then
+    systemctl enable --now --user mpd.service
+    systemctl enable --now --user mpd-mpris.service
+    sudo systemctl enable --now libvirtd
+fi
 
 # install stuff with scripts
 if [ -d ~/.oh-my-zsh ]; then
