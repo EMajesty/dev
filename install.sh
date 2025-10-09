@@ -82,7 +82,7 @@ CORE_PACKAGES=(
 	xdg-desktop-portal-hyprland
 	zsh 
     hyprshot
-    mullvad-vpn
+    mullvad-vpn-bin
     plymouth-git
     runelite
     spotify
