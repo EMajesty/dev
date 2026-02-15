@@ -114,6 +114,7 @@ rustup default stable
 yay -S dcli-arch-git --noconfirm
 mkdir -p "${HOME}/.config"
 git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
+dcli merge
 dcli sync
 
 echo -e "${RED}The pact is sealed ${NC}"
