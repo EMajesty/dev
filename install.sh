@@ -200,16 +200,24 @@ fi
 sudo chmod 750 /.snapshots
 sudo chown root:users /.snapshots
 
-sudo sed -i 's/^ALLOW_USERS=.*/ALLOW_USERS="emaj"/' /etc/snapper/configs/root
-grep -q '^ALLOW_USERS=' /etc/snapper/configs/root || echo 'ALLOW_USERS="emaj"' | sudo tee -a /etc/snapper/configs/root
+if sudo grep -q '^ALLOW_USERS="emaj"$' /etc/snapper/configs/root; then
+    :
+else
+    sudo sed -i 's/^ALLOW_USERS=.*/ALLOW_USERS="emaj"/' /etc/snapper/configs/root
+    sudo grep -q '^ALLOW_USERS=' /etc/snapper/configs/root || echo 'ALLOW_USERS="emaj"' | sudo tee -a /etc/snapper/configs/root
+fi
 
-sudo sed -i 's/^SYNC_ACL=.*/SYNC_ACL="yes"/' /etc/snapper/configs/root
-grep -q '^SYNC_ACL=' /etc/snapper/configs/root || echo 'SYNC_ACL="yes"' | sudo tee -a /etc/snapper/configs/root
+if sudo grep -q '^SYNC_ACL="yes"$' /etc/snapper/configs/root; then
+    :
+else
+    sudo sed -i 's/^SYNC_ACL=.*/SYNC_ACL="yes"/' /etc/snapper/configs/root
+    sudo grep -q '^SYNC_ACL=' /etc/snapper/configs/root || echo 'SYNC_ACL="yes"' | sudo tee -a /etc/snapper/configs/root
+fi
 
 
 # set up dcli
 start_spinner "Setting up dcli..."
-rustup default stable
+rustup default stable >/dev/null
 yay -S --needed dcli-arch-git --noconfirm 2> >(filter_pacman_warnings)
 mkdir -p "${HOME}/.config"
 git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
