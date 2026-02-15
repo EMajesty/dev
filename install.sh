@@ -22,8 +22,6 @@ LOG_FILE="${LOG_FILE:-/tmp/install.log}"
 exec 3>&1
 exec >"$LOG_FILE"
 
-say "${BLUE}>> Logging output to ${LOG_FILE}${NC}"
-
 say() {
     printf '%b\n' "$1" >&2
 }
@@ -31,6 +29,8 @@ say() {
 prompt() {
     printf '%b' "$1" >/dev/tty
 }
+
+say "${BLUE}>> Logging output to ${LOG_FILE}${NC}"
 
 SPINNER_PID=""
 start_spinner() {
