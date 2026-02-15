@@ -2,12 +2,66 @@
 
 set -euo pipefail
 
+# Ask for sudo once up front and keep it alive
+sudo -v
+while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+done 2>/dev/null &
+
 # Colors
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'
 YELLOW=$'\033[1;33m'
 BLUE=$'\033[0;34m'
 NC=$'\033[0m' # No Color
+
+# Hide stdout; keep stderr and prompts visible
+LOG_FILE="${LOG_FILE:-/tmp/install.log}"
+exec 3>&1
+exec >"$LOG_FILE"
+
+say "${BLUE}>> Logging output to ${LOG_FILE}${NC}"
+
+say() {
+    printf '%b\n' "$1" >&2
+}
+
+prompt() {
+    printf '%b' "$1" >/dev/tty
+}
+
+SPINNER_PID=""
+start_spinner() {
+    local msg="$1"
+    printf '%b' "${BLUE}>> ${msg}${NC} " >/dev/tty
+    (
+        local spin='-\|/'
+        local i=0
+        while true; do
+            i=$(( (i + 1) % 4 ))
+            printf '\b%s' "${spin:$i:1}" >/dev/tty
+            sleep 0.1
+        done
+    ) &
+    SPINNER_PID=$!
+}
+
+stop_spinner() {
+    local status="${1:-OK}"
+    if [ -n "${SPINNER_PID}" ] && kill -0 "${SPINNER_PID}" 2>/dev/null; then
+        kill "${SPINNER_PID}" 2>/dev/null || true
+        wait "${SPINNER_PID}" 2>/dev/null || true
+    fi
+    SPINNER_PID=""
+    printf '\b[%s]\n' "${status}" >/dev/tty
+}
+
+cleanup_spinner() {
+    stop_spinner "FAIL"
+}
+trap cleanup_spinner EXIT
 
 printf '%b\n' "${RED}\
                              ▄▄       ▄▄                                                      ▄▄    ▄▄       
@@ -26,52 +80,63 @@ printf '%b\n' "${RED}\
       ██                                                                                                     
     ▄▀${NC}"
 
-printf '%b' "${GREEN}Set up git? [Y/n] ${NC}"
+prompt "${GREEN}Set up git? [Y/n] ${NC}"
 read -r git
 git=${git:-Y}
 
 if [[ $git == [Yy] ]]; then
-    printf '%b' "${GREEN}Git username: ${NC}"
+    prompt "${GREEN}Git username: ${NC}"
     read -r GITUSER
-    printf '%b' "${GREEN}Git email: ${NC}"
+    prompt "${GREEN}Git email: ${NC}"
     read -r GITEMAIL
     git config --global user.name "$GITUSER"
     git config --global user.email "$GITEMAIL"
     git config --global init.defaultBranch main
 fi
 
+start_spinner "Updating packages..."
 sudo pacman -Syu --noconfirm
+stop_spinner "OK"
+
+start_spinner "Installing base packages..."
 sudo pacman -S --needed git rustup base-devel openssh --noconfirm
+stop_spinner "OK"
 
 # install yay
-if [ -d yay ]; then
-    rm -rf yay
-fi
+if command -v yay >/dev/null 2>&1; then
+    say "${YELLOW}yay already installed; skipping${NC}"
+else
+    start_spinner "Installing yay..."
+    if [ -d yay ]; then
+        rm -rf yay
+    fi
 
-git clone "https://aur.archlinux.org/yay.git" &&
-    cd "yay" &&
-    makepkg -si --noconfirm &&
-    cd .. &&
-    rm -rf "yay"
+    git clone "https://aur.archlinux.org/yay.git" &&
+        cd "yay" &&
+        makepkg -si --noconfirm &&
+        cd .. &&
+        rm -rf "yay"
+    stop_spinner "OK"
+fi
 
 # ssh keygen
 if [ -f ~/.ssh/id_ed25519.pub ]; then
-	echo "${RED}SSH key already exists ${NC}"
+	say "${YELLOW}SSH key already exists ${NC}"
 else
-	printf '%b' "${GREEN}Email address for ssh-keygen: ${NC}"
+	prompt "${GREEN}Email address for ssh-keygen: ${NC}"
 	read -r email
 	ssh-keygen -t ed25519 -C "$email"
 fi
 
 # mount nas
-printf '%b' "${GREEN}Mount raato? [Y/n] ${NC}"
+prompt "${GREEN}Mount raato? [Y/n] ${NC}"
 read -r mount
 mount=${mount:-Y}
 
 if [[ $mount == [Yy] ]]; then
-	printf '%b' "${GREEN}Share username: ${NC}"
+	prompt "${GREEN}Share username: ${NC}"
 	read -r USERNAME
-	printf '%b' "${GREEN}Share password: ${NC}"
+	prompt "${GREEN}Share password: ${NC}"
 	read -rs PASSWORD
 	echo
 
@@ -93,13 +158,17 @@ if [[ $mount == [Yy] ]]; then
 fi
 
 # set up swapfile
+start_spinner "Creating swapfile..."
 sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
 sudo swapon /swap/swapfile
 SWAPLINE="/swap/swapfile none swap defaults 0 0"
 grep -qF -- "$SWAPLINE" /etc/fstab || echo "$SWAPLINE" | sudo tee -a /etc/fstab
+stop_spinner "OK"
 
 # set up snapper in a fucked up way
-yay -S snapper
+start_spinner "Installing snapper..."
+yay -S --needed snapper --noconfirm
+stop_spinner "OK"
 
 sudo umount /.snapshots 2>/dev/null || true
 sudo rm -rf /.snapshots
@@ -121,11 +190,13 @@ grep -q '^SYNC_ACL=' /etc/snapper/configs/root || echo 'SYNC_ACL="yes"' | sudo t
 
 
 # set up dcli
+start_spinner "Setting up dcli..."
 rustup default stable
-yay -S dcli-arch-git --noconfirm
+yay -S --needed dcli-arch-git --noconfirm
 mkdir -p "${HOME}/.config"
 git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
 dcli merge
 dcli sync
+stop_spinner "OK"
 
-echo -e "${RED}The pact is sealed ${NC}"
+say "${RED}The pact is sealed ${NC}"
