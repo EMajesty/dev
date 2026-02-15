@@ -182,7 +182,11 @@ stop_spinner "OK"
 sudo umount /.snapshots 2>/dev/null || true
 sudo rm -rf /.snapshots
 sudo mkdir -p /.snapshots
-sudo snapper -c root create-config /
+if [ -f /etc/snapper/configs/root ]; then
+    say "${YELLOW}Snapper config already exists; skipping create-config${NC}"
+else
+    sudo snapper -c root create-config /
+fi
 
 if sudo btrfs subvolume show /.snapshots >/dev/null 2>&1; then
     sudo btrfs subvolume delete /.snapshots
