@@ -159,8 +159,12 @@ fi
 
 # set up swapfile
 start_spinner "Creating swapfile..."
-sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
-sudo swapon /swap/swapfile
+if [ ! -f /swap/swapfile ]; then
+    sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
+fi
+if ! swapon --show | awk '{print $1}' | grep -qx /swap/swapfile; then
+    sudo swapon /swap/swapfile
+fi
 SWAPLINE="/swap/swapfile none swap defaults 0 0"
 grep -qF -- "$SWAPLINE" /etc/fstab || echo "$SWAPLINE" | sudo tee -a /etc/fstab
 stop_spinner "OK"
