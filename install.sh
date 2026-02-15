@@ -32,6 +32,11 @@ prompt() {
 
 say "${BLUE}>> Logging output to ${LOG_FILE}${NC}"
 
+filter_pacman_warnings() {
+    # Suppress "up to date -- skipping" warnings but keep other stderr output
+    grep -v -E '^warning: .+ is up to date -- skipping' >&2 || true
+}
+
 SPINNER_PID=""
 start_spinner() {
     local msg="$1"
@@ -95,11 +100,11 @@ if [[ $git == [Yy] ]]; then
 fi
 
 start_spinner "Updating packages..."
-sudo pacman -Syu --noconfirm
+sudo pacman -Syu --noconfirm 2> >(filter_pacman_warnings)
 stop_spinner "OK"
 
 start_spinner "Installing base packages..."
-sudo pacman -S --needed git rustup base-devel openssh cifs-utils --noconfirm
+sudo pacman -S --needed git rustup base-devel openssh cifs-utils --noconfirm 2> >(filter_pacman_warnings)
 stop_spinner "OK"
 
 # install yay
@@ -113,7 +118,7 @@ else
 
     git clone "https://aur.archlinux.org/yay.git" &&
         cd "yay" &&
-        makepkg -si --noconfirm &&
+        makepkg -si --noconfirm 2> >(filter_pacman_warnings) &&
         cd .. &&
         rm -rf "yay"
     stop_spinner "OK"
@@ -171,7 +176,7 @@ stop_spinner "OK"
 
 # set up snapper in a fucked up way
 start_spinner "Installing snapper..."
-yay -S --needed snapper --noconfirm
+yay -S --needed snapper --noconfirm 2> >(filter_pacman_warnings)
 stop_spinner "OK"
 
 sudo umount /.snapshots 2>/dev/null || true
@@ -201,7 +206,7 @@ grep -q '^SYNC_ACL=' /etc/snapper/configs/root || echo 'SYNC_ACL="yes"' | sudo t
 # set up dcli
 start_spinner "Setting up dcli..."
 rustup default stable
-yay -S --needed dcli-arch-git --noconfirm
+yay -S --needed dcli-arch-git --noconfirm 2> >(filter_pacman_warnings)
 mkdir -p "${HOME}/.config"
 git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
 dcli merge
