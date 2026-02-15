@@ -38,7 +38,7 @@ if [[ $git == [Yy] ]]; then
 fi
 
 sudo pacman -Syu --noconfirm
-sudo pacman -S git rustup --noconfirm
+sudo pacman -S --needed git rustup base-devel --noconfirm
 
 # install yay
 git clone "https://aur.archlinux.org/yay.git" &&
