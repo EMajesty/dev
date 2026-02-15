@@ -3,11 +3,11 @@
 set -euo pipefail
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+BLUE=$'\033[0;34m'
+NC=$'\033[0m' # No Color
 
 printf '%b\n' "${RED}\
                              ▄▄       ▄▄                                                      ▄▄    ▄▄       
@@ -26,13 +26,15 @@ printf '%b\n' "${RED}\
       ██                                                                                                     
     ▄▀${NC}"
 
-echo "${GREEN}Set up git? [Y/n] ${NC}"
-read git
+printf '%b' "${GREEN}Set up git? [Y/n] ${NC}"
+read -r git
 git=${git:-Y}
 
 if [[ $git == [Yy] ]]; then
-    read -p "${GREEN}Git username: ${NC}" GITUSER
-    read -p "${GREEN}Git email: ${NC}" GITEMAIL
+    printf '%b' "${GREEN}Git username: ${NC}"
+    read -r GITUSER
+    printf '%b' "${GREEN}Git email: ${NC}"
+    read -r GITEMAIL
     git config --global user.name "$GITUSER"
     git config --global user.email "$GITEMAIL"
     git config --global init.defaultBranch main
@@ -56,17 +58,21 @@ git clone "https://aur.archlinux.org/yay.git" &&
 if [ -f ~/.ssh/id_ed25519.pub ]; then
 	echo "${RED}SSH key already exists ${NC}"
 else
-	read -p "${GREEN}Email address for ssh-keygen: ${NC}" email
+	printf '%b' "${GREEN}Email address for ssh-keygen: ${NC}"
+	read -r email
 	ssh-keygen -t ed25519 -C "$email"
 fi
 
 # mount nas
-read -p "${GREEN}Mount raato? [Y/n] ${NC}" mount
+printf '%b' "${GREEN}Mount raato? [Y/n] ${NC}"
+read -r mount
 mount=${mount:-Y}
 
 if [[ $mount == [Yy] ]]; then
-	read -p "${GREEN}Share username: ${NC}" USERNAME
-	read -sp "${GREEN}Share password: ${NC}" PASSWORD
+	printf '%b' "${GREEN}Share username: ${NC}"
+	read -r USERNAME
+	printf '%b' "${GREEN}Share password: ${NC}"
+	read -rs PASSWORD
 	echo
 
 	SERVER="//192.168.1.12/raato"
