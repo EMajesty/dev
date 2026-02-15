@@ -1,161 +1,27 @@
 #!/bin/bash
 
-CORE_PACKAGES=(
-	7zip
-    alacritty
-    ark
-    blueberry
-    bluez
-	btop
-    cifs-utils
-	clang
-	cmake
-    cups
-    cups-pdf
-    cups-filters
-    cups-browsed
-    system-config-printer
-	curl
-	discord
-	efibootmgr
-	eom
-    eza
-	fastfetch
-	ffmpegthumbnailer
-	ffmpegthumbs
-	freerdp
-	gdb
-	ghostty
-	git
-    hypridle
-	hyprland
-    hyprlock
-	hyprpicker
-    hyprshot
-    lazygit
-	less
-	lib32-mesa
-    lua
-    luajit
-    luarocks
-	mako
-	man-db
-	mesa
-    nautilus
-	neovim
-    network-manager-applet
-	networkmanager
-	noto-fonts
-	noto-fonts-cjk
-	noto-fonts-emoji
-	noto-fonts-extra
-	ntfs-3g
-    nwg-look
-	openssh
-	pavucontrol
-	pipewire
-	pipewire-alsa
-	pipewire-jack
-	pipewire-pulse
-	pipewire-roc
-	pipewire-v4l2
-	python
-	python-pip
-	rustup
-	smbclient
-	stow
-	tldr
-	tmux
-	tree
-    ttf-liberation
-	tumbler
-	udiskie
-	unzip
-	vlc
-    vlc-plugins-all
-	waybar
-	wget
-    wiremix
-	wireplumber
-	wofi
-	xdg-desktop-portal
-	xdg-desktop-portal-hyprland
-	zsh 
-    hyprshot
-    mullvad-vpn-bin
-    plymouth-git
-    runelite
-    spotify
-    zen-browser-bin
-    swww
-    waytrogen
-    )
+set -euo pipefail
 
-LAPTOP_PACKAGES=(
-	amd-ucode
-	lib32-vulkan-radeon
-	vulkan-radeon
-	xf86-video-amdgpu
-    )
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-DESKTOP_PACKAGES=(
-	amd-ucode
-    aseprite
-    bitwig-studio
-    blender
-    bottles
-	foliate
-    gamemode
-    godot
-    kicad
-    kicad-library
-	lib32-vulkan-radeon
-	mpd
-    mpd-mpris
-    obs-studio
-	obsidian
-	qbittorrent
-    qemu-full
-	remmina
-	rmpc
-	steam
-    swtpm
-	telegram-desktop
-    virt-manager
-	vulkan-radeon
-    wine
-    winetricks
-	xf86-video-amdgpu
-    yabridge
-    yabridgectl
-    trenchbroom-bin
-    tuxguitar
-    vial-appimage
-    virtio-win
-    whatsdesk-bin
-    )
-
-read -p "Install desktop packages? [Y/n] " desktoppkgs 
-desktoppkgs=${desktoppkgs:-Y}
-
-read -p "Install laptop packages? [Y/n] " laptoppkgs
-laptoppkgs=${laptoppkgs:-Y}
-
-read -p "Set up git? [Y/n] " git
+read -p "${GREEN}Set up git? [Y/n] ${NC}" git
 git=${git:-Y}
 
-read -p "Mount raato? [Y/n] " mount
-mount=${mount:-Y}
-
 if [[ $git == [Yy] ]]; then
-    read -p "Git username: " GITUSER
-    read -p "Git email: " GITEMAIL
+    read -p "${GREEN}Git username: ${NC}" GITUSER
+    read -p "${GREEN}Git email: ${NC}" GITEMAIL
     git config --global user.name "$GITUSER"
     git config --global user.email "$GITEMAIL"
     git config --global init.defaultBranch main
 fi
 
 sudo pacman -Syu --noconfirm
+sudo pacman -S git rustup --noconfirm
 
 # install yay
 git clone "https://aur.archlinux.org/yay.git" &&
@@ -164,48 +30,21 @@ git clone "https://aur.archlinux.org/yay.git" &&
     cd .. &&
     rm -rf "yay"
 
-mapfile -t INSTALLED < <(pacman -Qq)
-
-# install packages
-for pkg in "${CORE_PACKAGES[@]}"; do
-	if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
- 		yay -S --noconfirm ${pkg}
-	fi
-done
-
-if [[ $desktoppkgs == [Yy] ]]; then
-    for pkg in "${DESKTOP_PACKAGES[@]}"; do
-        if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
-            yay -S --noconfirm ${pkg}
-        fi
-    done
-fi
-
-if [[ $laptoppkgs == [Yy] ]]; then
-    for pkg in "${LAPTOP_PACKAGES[@]}"; do
-        if ! [[ " ${INSTALLED[*]} " == *" $pkg"* ]]; then
-            yay -S --noconfirm ${pkg}
-        fi
-    done
-fi
-
-# dotfiles stuff
-# git clone https://github.com/emajesty/dotfiles
-# cd dotfiles
-# stow .
-# cd
-
 # ssh keygen
 if [ -f ~/.ssh/id_ed25519.pub ]; then
-	echo "SSH key already exists"
+	echo "${RED}SSH key already exists ${NC}"
 else
-	read -p "Email address for ssh-keygen: " email
+	read -p "${GREEN}Email address for ssh-keygen: ${NC}" email
 	ssh-keygen -t ed25519 -C "$email"
 fi
 
+# mount nas
+read -p "${GREEN}Mount raato? [Y/n] ${NC}" mount
+mount=${mount:-Y}
+
 if [[ $mount == [Yy] ]]; then
-	read -p "Share username: " USERNAME
-	read -sp "Share password: " PASSWORD
+	read -p "${GREEN}Share username: ${NC}" USERNAME
+	read -sp "${GREEN}Share password: ${NC}" PASSWORD
 	echo
 
 	SERVER="//192.168.1.12/raato"
@@ -225,21 +64,9 @@ if [[ $mount == [Yy] ]]; then
 	sudo mount -a
 fi
 
-# systemd stuff
-sudo systemctl enable --now bluetooth.service
-sudo systemctl enable --now mullvad-daemon.service
+# set up dcli
+rustup default stable
+yay -S dcli-arch-git --noconfirm
+mkdir -p "${HOME}/.config"
 
-if [[ $desktoppkgs == [Yy] ]]; then
-    systemctl enable --now --user mpd.service
-    systemctl enable --now --user mpd-mpris.service
-    sudo systemctl enable --now libvirtd
-fi
-
-# install stuff with scripts
-if [ -d ~/.oh-my-zsh ]; then
-	echo "Oh My ZSH is already installed"
-else
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
-
-echo -e "\e[31mThe pact is sealed\e[0m"
+echo -e "${RED}The pact is sealed ${NC}"
