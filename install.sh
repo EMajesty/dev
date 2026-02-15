@@ -99,7 +99,7 @@ sudo pacman -Syu --noconfirm
 stop_spinner "OK"
 
 start_spinner "Installing base packages..."
-sudo pacman -S --needed git rustup base-devel openssh --noconfirm
+sudo pacman -S --needed git rustup base-devel openssh cifs-utils --noconfirm
 stop_spinner "OK"
 
 # install yay
