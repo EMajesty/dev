@@ -233,4 +233,7 @@ dcli merge
 dcli sync
 exec >"$LOG_FILE"
 
+sudo systemctl enable ly@tty1.service
+sudo systemctl disable getty@tty1.service
+
 say "${RED}The pact is sealed ${NC}"
