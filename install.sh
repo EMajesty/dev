@@ -26,7 +26,8 @@ printf '%b\n' "${RED}\
       ██                                                                                                     
     ▄▀${NC}"
 
-read -p "${GREEN}Set up git? [Y/n] ${NC}" git
+echo "${GREEN}Set up git? [Y/n] ${NC}"
+read git
 git=${git:-Y}
 
 if [[ $git == [Yy] ]]; then
