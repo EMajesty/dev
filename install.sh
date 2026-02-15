@@ -217,7 +217,7 @@ fi
 
 # set up dcli
 start_spinner "Setting up dcli..."
-rustup default stable >/dev/null
+rustup default stable >/dev/null 2>>"$LOG_FILE"
 yay -S --needed dcli-arch-git --noconfirm 2> >(filter_pacman_warnings)
 mkdir -p "${HOME}/.config"
 if [ -d "${HOME}/.config/arch-config/.git" ]; then
