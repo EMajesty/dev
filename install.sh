@@ -41,6 +41,10 @@ sudo pacman -Syu --noconfirm
 sudo pacman -S --needed git rustup base-devel openssh --noconfirm
 
 # install yay
+if [ -d yay ]; then
+    rm -rf yay
+fi
+
 git clone "https://aur.archlinux.org/yay.git" &&
     cd "yay" &&
     makepkg -si --noconfirm &&
