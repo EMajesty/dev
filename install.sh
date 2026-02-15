@@ -138,7 +138,7 @@ if [[ $mount == [Yy] ]]; then
 	read -r USERNAME
 	prompt "${GREEN}Share password: ${NC}"
 	read -rs PASSWORD
-	echo
+	echo >/dev/tty
 
 	SERVER="//192.168.1.12/raato"
 	MOUNT_POINT="/mnt/raato"
@@ -172,13 +172,18 @@ stop_spinner "OK"
 
 sudo umount /.snapshots 2>/dev/null || true
 sudo rm -rf /.snapshots
+sudo mkdir -p /.snapshots
 sudo snapper -c root create-config /
 
 if sudo btrfs subvolume show /.snapshots >/dev/null 2>&1; then
     sudo btrfs subvolume delete /.snapshots
 fi
 
-sudo mount /.snapshots
+if [ -d /.snapshots ]; then
+    sudo mount /.snapshots
+else
+    say "${YELLOW}Skipping mount: /.snapshots does not exist${NC}"
+fi
 sudo chmod 750 /.snapshots
 sudo chown root:users /.snapshots
 
