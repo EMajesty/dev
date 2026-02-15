@@ -20,6 +20,7 @@ NC=$'\033[0m' # No Color
 # Hide stdout; keep stderr and prompts visible
 LOG_FILE="${LOG_FILE:-/tmp/install.log}"
 exec 3>&1
+exec 4>&2
 exec >"$LOG_FILE"
 
 say() {
@@ -226,7 +227,10 @@ else
     git clone https://github.com/EMajesty/arch-config.git "${HOME}/.config/arch-config"
 fi
 stop_spinner "OK"
+# Restore stdout/stderr for interactive dcli output/input, then silence again
+exec 1>&3 2>&4
 dcli merge
 dcli sync
+exec >"$LOG_FILE"
 
 say "${RED}The pact is sealed ${NC}"
