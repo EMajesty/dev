@@ -221,8 +221,8 @@ rustup default stable >/dev/null
 yay -S --needed dcli-arch-git --noconfirm 2> >(filter_pacman_warnings)
 mkdir -p "${HOME}/.config"
 git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
+stop_spinner "OK"
 dcli merge
 dcli sync
-stop_spinner "OK"
 
 say "${RED}The pact is sealed ${NC}"
