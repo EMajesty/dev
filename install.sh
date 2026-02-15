@@ -220,7 +220,11 @@ start_spinner "Setting up dcli..."
 rustup default stable >/dev/null
 yay -S --needed dcli-arch-git --noconfirm 2> >(filter_pacman_warnings)
 mkdir -p "${HOME}/.config"
-git clone https://github.com/EMajesty/arch-config.git ~/.config/arch-config
+if [ -d "${HOME}/.config/arch-config/.git" ]; then
+    git -C "${HOME}/.config/arch-config" pull --ff-only
+else
+    git clone https://github.com/EMajesty/arch-config.git "${HOME}/.config/arch-config"
+fi
 stop_spinner "OK"
 dcli merge
 dcli sync
